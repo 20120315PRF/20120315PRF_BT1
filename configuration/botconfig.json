@@ -1,0 +1,10 @@
+{
+  "GTM" : 2,
+  "mode" : "scrap",
+  "telegram" : {
+    "token" : "224952481:AAHmbCQfgAkROv5Dxcaf8YVlXGrG00u7oEs",
+    "1708688" : ["genesis_14", "genesis_45", "theredhawk"],
+    "170999676" : ["phoenix1969", "theredhawk"],
+    "166121436" : ["theredhawk"]
+  }
+}

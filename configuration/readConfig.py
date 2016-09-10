@@ -5,26 +5,19 @@ import os.path
 class Configuration:
 
     ## Config parameters parsed here
-    _fromMail = None
-    _fromPassword = None
-    _listMails = None
     _telegramToken = None
     _listTelegram = None
+    _mode = None
+    _gtm = 0
 
     def __init__(self):
-        self._fromMail = ""
-        self._fromPassword = ""
-        self._listMails = []
         self._telegramToken = ""
         self._listTelegram = []
+        self._mode = ""
+        self._gtm = 0
 
     def getCandidateList(self):
         delegates = []
-        #process mails
-        for mail in self._listMails.keys():
-            for delegate in self._listMails[mail]:
-                if delegate not in delegates:
-                    delegates.append(delegate)
         #process telegrams
         for telegram in self._listTelegram.keys():
             for delegate in self._listTelegram[telegram]:
@@ -32,6 +25,15 @@ class Configuration:
                     delegates.append(delegate)
 
         return delegates
+
+    def getMode(self):
+        return self._mode
+
+    def getGtm(self):
+        if not self._gtm is None:
+            return self._gtm
+        else:
+            return 0
 
 ##Function that return a configuration object
 def readConfigFile(filename):
@@ -48,14 +50,14 @@ def readConfigFile(filename):
     configuration = Configuration()
 
     #extract the from file
-    configuration._fromMail = objectJson['mails']['from']
-    objectJson['mails'].pop('from', None)
-    configuration._fromPassword = objectJson['mails']['password']
-    objectJson['mails'].pop('password', None)
-    configuration._listMails = objectJson['mails']
     configuration._telegramToken = objectJson['telegram']['token']
     objectJson['telegram'].pop('token', None)
     configuration._listTelegram = objectJson['telegram']
+    # Working mode
+    configuration._mode = objectJson['mode']
+    # GTM offset
+    if 'GTM' in objectJson:
+        configuration._gtm = objectJson['GTM']
 
     return configuration
 

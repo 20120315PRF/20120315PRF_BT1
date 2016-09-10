@@ -9,7 +9,8 @@ from models.delegate_info import DelegateInfoFactory
 from models.delegate_info import DelegateInfoStatus
 
 ## Static Vars
-DELEGATE_MONITOR_URL = "https://explorer.lisk.io/delegateMonitor"
+DELEGATE_MONITOR_URL = "https://testnet-explorer.lisk.io/delegateMonitor"
+CHROME_DRIVER_PATH = "C:/Program Files (x86)/Google/chromedriver_win32"
 delegateFactory = DelegateInfoFactory()
 
 ## Generates a DOM object with selenium that mantains the html core read
@@ -18,12 +19,9 @@ def readDOMDocument(url):
 
     # use the firefox driver or chrome instead
     try:
-        driver = webdriver.Firefox()
+        driver = webdriver.Chrome(executable_path=r"C:/Program Files (x86)/Google/chromedriver_win32/chromedriver.exe")
     except:
-        try:
-            driver = webdriver.Chrome()
-        except:
-            raise Exception("Cant open a browser! Please install Firefox or Chrome Core")
+        raise Exception("Cant open a browser! Please install Chrome Core")
 
     ##Read the doc and close the driver. Wait until the 101 delegates are loaded
     driver.get(url)
@@ -34,6 +32,7 @@ def readDOMDocument(url):
 
     code = html.fromstring(driver.page_source)
     driver.close()
+    driver.quit()
 
     return code
 
@@ -88,12 +87,8 @@ def getDelegateStatus(code, delegateName):
 def readDelegatesStatus(delegateList):
     #delagate status list as json
     delegates = {}
-    code = None
 
-    try:
-        code = readDOMDocument(DELEGATE_MONITOR_URL)
-    except:
-        raise Exception("Web scrap exception. Try to reconnect")
+    code = readDOMDocument(DELEGATE_MONITOR_URL)
 
     #Check delegate, verify status and add to dict
     for delegate in delegateList:

@@ -3,6 +3,7 @@
 ##
 import telebot
 import notification_filter
+from datetime import datetime, timedelta
 
 #Singleton telegram bot
 class TelegramBot:
@@ -54,8 +55,18 @@ def __generateMessageForTelegram( delegateStatus, user, delegateName, currentTim
 
     return msg
 
+
+## Generates a UTC Time
+def generateUtcTime():
+    now = datetime.utcnow()
+    return str(now).split('.')[0]
+## Generates GTM time with offset
+def generateGtmTime(offset):
+    now = datetime.utcnow() + timedelta(hours=offset)
+    return str(now).split('.')[0]
+
 ## For each user of telegram, send message with notifications
-def sendTelegramNotifications (apiKey, userList, delegateStatusList,currentTime, history):
+def sendTelegramNotifications (apiKey, userList, delegateStatusList,currentTime, history, gtmOffset):
     for user in userList:
         msgList = list()
         ## Generate the msg for each related delegate
@@ -70,6 +81,7 @@ def sendTelegramNotifications (apiKey, userList, delegateStatusList,currentTime,
             msgContent = msgContent + msg
         ### Send notification only if msgContent is available
         if msgContent != "":
+            msgContent = "[ (GTM+" + str(gtmOffset) + ") " + generateGtmTime(gtmOffset) + ' ]\n' + msgContent
             try:
                 __sendTelegramMessage(apiKey, user, msgContent)
             except:
