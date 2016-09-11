@@ -4,23 +4,41 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from lxml import html
+from pyvirtualdisplay import Display
+import os
+import logging
+
 
 from models.delegate_info import DelegateInfoFactory
 from models.delegate_info import DelegateInfoStatus
 
 ## Static Vars
 DELEGATE_MONITOR_URL = "https://testnet-explorer.lisk.io/delegateMonitor"
-CHROME_DRIVER_PATH = "C:/Program Files (x86)/Google/chromedriver_win32"
+CHROME_DRIVER_PATH = "C:/Program Files (x86)/Google/chromedriver_win32/chromedriver.exe"
+os.environ["webdriver.chrome.driver"] = CHROME_DRIVER_PATH
+
 delegateFactory = DelegateInfoFactory()
+
+#Check if OS is Linux
+def osIsLinux():
+    return os.name == 'posix'
 
 ## Generates a DOM object with selenium that mantains the html core read
 def readDOMDocument(url):
     driver = None
+    display = None
+
+    if osIsLinux():
+        logging.debug('OS is posix')
+        Display(visible=0, size=(800, 600))
+        display.start()
 
     # use the firefox driver or chrome instead
     try:
-        driver = webdriver.Chrome(executable_path=r"C:/Program Files (x86)/Google/chromedriver_win32/chromedriver.exe")
+        #driver = webdriver.Chrome(executable_path=r"C:/Program Files (x86)/Google/chromedriver_win32/chromedriver.exe")
+        driver = webdriver.Chrome(CHROME_DRIVER_PATH)
     except:
+        logging.error('Cant open a browser! Please install Chrome Core')
         raise Exception("Cant open a browser! Please install Chrome Core")
 
     ##Read the doc and close the driver. Wait until the 101 delegates are loaded
@@ -28,12 +46,15 @@ def readDOMDocument(url):
     try:
         WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '//td[@class="ng-binding" and text() = "101"]')))
     except:
+        logging.error('Timeout exceeded. Cannot open the webpage')
         raise Exception("Timeout exceeded. Cannot open the webpage")
 
     code = html.fromstring(driver.page_source)
     driver.close()
     driver.quit()
-
+    if display is not None:
+        logging.debug('Closing virtualenv for posix OS')
+        display.stop()
     return code
 
 ## Read the delegate status from the DOM document with xpath

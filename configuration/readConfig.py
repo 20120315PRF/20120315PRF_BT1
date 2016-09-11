@@ -1,5 +1,6 @@
 import json
 import os.path
+import logging
 
 ## Class that mantains the configuration
 class Configuration:
@@ -39,6 +40,7 @@ class Configuration:
 def readConfigFile(filename):
 
     if not os.path.exists(filename):
+        logging.error("Configuration file %s does not exists", filename)
         raise Exception("config.json file does not exists")
 
     configFile = open(filename, 'r')
